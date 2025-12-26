@@ -103,7 +103,8 @@
                                         <select class="form-select" id="rack_section_id" name="rack_section_id">
                                             <option value="">Raf/Bölüm Seçiniz</option>
                                             @foreach ($serviceStorageLocation as $storage)
-                                                <option value="{{ $storage->id }}">{{ $storage->rack }} {{ $storage->shelf }} {{ $storage->bin }}</option>
+                                                <option value="{{ $storage->id }}">{{ $storage->rack }}
+                                                    {{ $storage->shelf }} {{ $storage->bin }}</option>
                                             @endforeach
                                         </select>
 
@@ -160,148 +161,215 @@
         </div>
     </div>
     <div class="modal fade" id="createCustomerModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content ">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white">Yeni Müşteri Oluştur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-dialog modal-xl modal-dialog-centered ">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white">Yeni Müşteri Kaydı</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="#" method="POST">
+                <form id="createCustomerForm">
                     @csrf
-                    <div class="modal-body row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Müşteri Tipi</label>
-                            <select class="form-select" name="customer_type_id">
-                                <option value="1">Bireysel</option>
-                                <option value="2">Kurumsal</option>
-                            </select>
+                    <div class="modal-body">
+                        <h6 class="border-bottom pb-2 mb-3">Genel Bilgiler</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label">Müşteri Tipi</label>
+                                <select class="form-select" name="customer_type_id" id="customer_type_id">
+                                    <option value="1">Bireysel</option>
+                                    <option value="2">Kurumsal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Ad Soyad</label>
+                                <input type="text" class="form-control" name="fullname" id="fullname" required>
+                            </div>
+                            <div class="col-md-6 corporate-field d-none">
+                                <label class="form-label">Firma Adı</label>
+                                <input type="text" class="form-control" name="company_name" id="company_name">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">E-posta</label>
+                                <input type="email" class="form-control" name="email" id="email">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Telefon</label>
+                                <input type="text" class="form-control" name="phone" id="phone" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">İkinci Telefon</label>
+                                <input type="text" class="form-control" name="phone_secondary" id="phone_secondary">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tercih Edilen İletişim</label>
+                                <select class="form-select" name="customer_preferred_contact_method_id"
+                                    id="customer_preferred_contact_method_id">
+                                    <option value="1">Telefon</option>
+                                    <option value="2">E-posta</option>
+                                    <option value="3">WhatsApp</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Ad Soyad</label>
-                            <input type="text" class="form-control" name="fullname" required>
+                        <h6 class="border-bottom pb-2 mb-3">Adres Bilgileri</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label">Adres</label>
+                                <textarea class="form-control" name="address" id="address" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Ülke</label>
+                                <select class="form-select" name="country_id" id="country_id">
+                                    <option value="1">Türkiye</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Şehir</label>
+                                <select class="form-select" name="city_id" id="city_id">
+                                    <option value="1">İstanbul</option>
+                                    <option value="2">Ankara</option>
+                                    <option value="3">İzmir</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">İlçe</label>
+                                <select class="form-select" name="district_id" id="district_id">
+                                    <option value="1">Kadıköy</option>
+                                    <option value="2">Çankaya</option>
+                                    <option value="3">Bornova</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Posta Kodu</label>
+                                <input type="text" class="form-control" name="postal_code" id="postal_code">
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Firma Adı</label>
-                            <input type="text" class="form-control" name="company_name">
+                        <h6 class="border-bottom pb-2 mb-3 corporate-field d-none">Kurumsal Bilgiler</h6>
+                        <div class="row g-3 mb-4 corporate-field d-none">
+
+                            <div class="col-md-6">
+                                <label class="form-label">Vergi Dairesi</label>
+                                <input type="text" class="form-control" id="tax_office" name="tax_office">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Vergi No</label>
+                                <input type="text" class="form-control" id="tax_number" name="tax_number">
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">E-posta</label>
-                            <input type="email" class="form-control" name="email">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Telefon</label>
-                            <input type="text" class="form-control" name="phone" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">İkinci Telefon</label>
-                            <input type="text" class="form-control" name="phone_secondary">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Tercih Edilen İletişim</label>
-                            <select class="form-select" name="customer_preferred_contact_method_id">
-                                <option value="1">Telefon</option>
-                                <option value="2">E-posta</option>
-                                <option value="3">WhatsApp</option>
-                            </select>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Adres</label>
-                            <textarea type="text" class="form-control" name="address"></textarea>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Ülke</label>
-                            <select class="form-select" name="country_id" id="country_id">
-                                <option value="1">Türkiye</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Şehir</label>
-                            <select class="form-select" name="city_id" id="city_id">
-                                <option value="1">İstanbul</option>
-                                <option value="2">Ankara</option>
-                                <option value="3">İzmir</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">İlçe</label>
-                            <select class="form-select" name="district_id" id="district_id">
-                                <option value="1">Kadıköy</option>
-                                <option value="2">Çankaya</option>
-                                <option value="3">Bornova</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Posta Kodu</label>
-                            <input type="text" class="form-control" name="postal_code">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Vergi Dairesi</label>
-                            <input type="text" class="form-control" name="tax_office">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Vergi No</label>
-                            <input type="text" class="form-control" name="tax_number">
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Notlar</label>
-                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                        <h6 class="border-bottom pb-2 mb-3">Ek Bilgiler</h6>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Notlar</label>
+                                <textarea class="form-control" name="notes" id="notes" rows="3"></textarea>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                        <button type="submit" class="btn btn-primary">Müşteri Kaydet</button>
+                        <button type="button" id="customerInsertButton" class="btn btn-primary">Müşteriyi
+                            Kaydet</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
     <script>
-$(document).ready(function(){
+        $(document).ready(function() {
+            const domain = "{{ request()->route('domain') }}";
 
-    const domain = "{{ request()->route('domain') }}";
+            // Kullanıcı müşteri arama alanına yazdıkça tetiklenir
+            $('#customerSearch').on('keyup', function() {
+                let query = $(this).val();
+                if (query.length < 2) {
+                    $('#customerResult').addClass('d-none');
+                    return;
+                }
+                $.ajax({
+                    url: "/" + domain + "/customers/search",
+                    data: {
+                        q: query
+                    },
+                    success: function(res) {
+                        let html = '';
+                        if (res.length > 0) {
 
-    $('#customerSearch').on('keyup', function(){
-
-        let query = $(this).val();
-
-        if(query.length < 2){
-            $('#customerResult').addClass('d-none');
-            return;
-        }
-
-        $.ajax({
-            url: "/" + domain + "/customers/search",
-            data: { q: query },
-            success: function(res){
-                let html = '';
-
-                if(res.length > 0){
-                    res.forEach(function(item){
-                        html += `
+                            res.forEach(function(item) {
+                                html += `
                           <a href="javascript:void(0)" 
                              class="list-group-item list-group-item-action"
                              data-id="${item.id}"
                              data-name="${item.name}">
                              ${item.name} — ${item.phone}
                           </a>`;
-                    });
+                            });
+                            $('#customerResult').html(html).removeClass('d-none');
 
-                    $('#customerResult').html(html).removeClass('d-none');
+                        } else {
+                            $('#customerResult').addClass('d-none');
+                        }
+                    }
+                });
+            });
+
+            // Listeden bir müşteri seçildiğinde çalışır
+            $(document).on('click', '#customerResult a', function() {
+                $('#customerSearch').val($(this).data('name'));
+                $('#selectedCustomer').val($(this).data('id'));
+                $('#customerResult').addClass('d-none');
+            });
+
+            // Müşteri tipi Kurumsal mı Bireysel mi kontrol eden fonksiyon
+            function toggleCorporate() {
+                let type = $('#customer_type_id').val();
+
+                // Kurumsal seçiliyse kurumsal alanları göster
+                if (type == 2) {
+                    $('.corporate-field').removeClass('d-none');
                 } else {
-                    $('#customerResult').addClass('d-none');
+                    // Bireysel ise kurumsal alanları gizle
+                    $('.corporate-field').addClass('d-none');
                 }
             }
+            toggleCorporate();
+            // Müşteri tipi değiştiğinde tekrar kontrol et
+            $('#customer_type_id').on('change', toggleCorporate);
+            // Yeni Müşteri Ekle
+            $('#customerInsertButton').click(function(e) {
+                e.preventDefault();
+                let data = {
+                    _token: "{{ csrf_token() }}",
+                    customer_type_id: $('#customer_type_id').val(),
+                    fullname: $('#fullname').val(),
+                    company_name: $('#company_name').val(),
+                    email: $('#email').val(),
+                    phone: $('#phone').val(),
+                    phone_secondary: $('#phone_secondary').val(),
+                    customer_preferred_contact_method_id: $('#customer_preferred_contact_method_id')
+                        .val(),
+                    address: $('#address').val(),
+                    country_id: $('#country_id').val(),
+                    city_id: $('#city_id').val(),
+                    district_id: $('#district_id').val(),
+                    postal_code: $('#postal_code').val(),
+                    tax_office: $('#tax_office').val(),
+                    tax_number: $('#tax_number').val(),
+                    notes: $('#notes').val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/" + domain + "/customers/store",
+                    data: data,
+                    success: function(res) {
+                        $('#customerSearch').val(res.name);
+                        $('#selectedCustomer').val(res.id);
+                        $('#createCustomerModal').modal('hide');
+                        $('#customerCreateForm')[0].reset();
+                    },
+                    error: function(xhr) {
+                        alert("Müşteri kaydedilirken hata oluştu!");
+                    }
+                });
+            });
         });
-
-    });
-
-    $(document).on('click', '#customerResult a', function(){
-        $('#customerSearch').val($(this).data('name'));
-        $('#selectedCustomer').val($(this).data('id'));
-        $('#customerResult').addClass('d-none');
-    });
-
-});
-</script>
-
+    </script>
 @endsection

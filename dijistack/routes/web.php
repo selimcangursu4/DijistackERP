@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('customers')->name('customers.')->group(function () {
             // Sayfalar
             Route::get('/search', [CustomerController::class, 'technicalServiceCustomerSearch'])->name('search');
+            Route::post('/store', [CustomerController::class, 'technicalServiceCustomerStore'])->name('store');
 
         });
     });

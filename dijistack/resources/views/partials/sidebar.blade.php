@@ -61,14 +61,13 @@
                 </li>
                 @foreach ($modules as $companyModule)
                     @php $module = $companyModule->module; @endphp
-
                     <li>
                         <a data-bs-toggle="collapse" href="#module_{{ $module->id }}">
                             <img class="me-2" src="{{ asset($module->icon) }}" style="width:22px; height:22px;">
                             {{ $module->name }}
                         </a>
 
-                        <ul class="collapse" id="module_{{ $module->id }}">
+                        <ul class="collapse" id="module_{{ $module->id }}" data-bs-parent="#sidebarMenu">
                             @foreach ($module->features as $feature)
                                 <li>
                                     <a href="/{{ auth()->user()->company->domain }}/{{ $feature->route }}"
@@ -80,7 +79,6 @@
                         </ul>
                     </li>
                 @endforeach
-
                 <li>
                     <a aria-expanded="false" data-bs-toggle="collapse" href="#settings">
                         <svg stroke="currentColor" stroke-width="1.5">

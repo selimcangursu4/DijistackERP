@@ -14,20 +14,20 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('company_id');
-            $table->string('fullname');
-            $table->string('company_name');
-            $table->string('email')->unique();
+            $table->string('fullname')->nullable();
+            $table->string('company_name')->nullable();
+            $table->string('email')->unique()->nullable();
             $table->string('phone')->unique();
             $table->string('phone_secondary')->nullable();
             $table->string('address')->nullable();
             $table->string('country_id')->nullable();
             $table->string('city_id')->nullable();
             $table->string('district_id')->nullable();
-            $table->string('postal_code');
+            $table->string('postal_code')->nullable();
             $table->string('tax_office')->nullable();
             $table->string('tax_number')->nullable();
             $table->string('customer_type_id');
-            $table->integer('customer_status_id');
+            $table->integer('customer_status_id'); // 1 Aktif 2 Pasif 
             $table->text('notes')->nullable();
             $table->integer('created_by');
             $table->integer('customer_preferred_contact_method_id')->nullable();
