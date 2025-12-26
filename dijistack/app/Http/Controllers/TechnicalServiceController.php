@@ -13,7 +13,9 @@ use App\Models\ServiceDeliveryMethod;
 use App\Models\ServiceTicket;
 use App\Models\Country;
 use App\Models\ServiceWarranty;
+use App\Models\ServiceStatus;
 use Carbon\Carbon;
+use Yajra\DataTables\DataTables;
 
 class TechnicalServiceController extends Controller
 {
@@ -24,7 +26,11 @@ class TechnicalServiceController extends Controller
             return view("no-authority");
         }
         $company = auth()->user()->company_id;
-        return view("technical-service.list", compact("company"));
+        $products = Product::where('company_id',$company)->get();
+        $faultCategories = ServiceFaultCategory::where('company_id',$company)->get();
+        $priorityStatus = ServicePriorityStatus::all();
+        $serviceStatus = ServiceStatus::where('company_id',$company)->get();
+        return view("technical-service.list", compact("company","products","faultCategories","priorityStatus","serviceStatus"));
     }
     // Teknik Servis Kaydı Oluşturma Sayfası
     public function create($domain)
@@ -86,16 +92,16 @@ class TechnicalServiceController extends Controller
 
         try {
             // 1) Teknik Servis Kaydi Olustur
-             $startDate = Carbon::now();
-             $estimatedDate = $startDate->copy();
+            $startDate = Carbon::now();
+            $estimatedDate = $startDate->copy();
 
-             $addedDays = 0;
-             while ($addedDays < 21) {
-              $estimatedDate->addDay();
+            $addedDays = 0;
+            while ($addedDays < 21) {
+                $estimatedDate->addDay();
 
-             if (!$estimatedDate->isWeekend()) {
-              $addedDays++;
-             }
+                if (!$estimatedDate->isWeekend()) {
+                    $addedDays++;
+                }
             }
 
             $service = TechnicalService::create([
@@ -105,7 +111,7 @@ class TechnicalServiceController extends Controller
                 "serial_number" => $request->imei,
                 "service_fault_category_id" => $request->fault_category_id,
                 "fault_description" => $request->fault_description,
-                "estimated_completion_date"=> $estimatedDate->format('Y-m-d'),
+                "estimated_completion_date" => $estimatedDate->format("Y-m-d"),
                 "service_priority_id" => $request->service_priority_id,
                 "service_status_id" => 1, // Varsayilan: Kayit Acildi
                 "rack_section_id" => $request->rack_section_id,
@@ -155,5 +161,74 @@ class TechnicalServiceController extends Controller
                 500
             );
         }
+    }
+    // Teknik Servis Kayıtlarını Listeleme İşlemi
+    public function fetch(Request $request)
+    {
+        $query = TechnicalService::with([
+            "customer",
+            "product",
+            "faultCategory",
+            "priority",
+            "status",
+        ])->where("company_id", auth()->user()->company_id);
+
+        // Filtreler
+        if ($request->service_id) {
+            $query->where("id", $request->service_id);
+        }
+
+        if ($request->product_id) {
+            $query->where("product_id", $request->product_id);
+        }
+
+        if ($request->imei) {
+            $query->where("serial_number", "like", "%{$request->imei}%");
+        }
+
+        if ($request->fault_category_id) {
+            $query->where(
+                "service_fault_category_id",
+                $request->fault_category_id
+            );
+        }
+
+        if ($request->priority_status_id) {
+            $query->where("service_priority_id", $request->priority_status_id);
+        }
+
+        if ($request->service_status_id) {
+            $query->where("service_status_id", $request->service_status_id);
+        }
+
+        if ($request->created_at) {
+            $query->whereDate("created_at", $request->created_at);
+        }
+
+        return DataTables::of($query)
+            ->addColumn("actions", function ($row) {
+                return '
+          <div class="d-flex gap-1">
+            <button class="btn btn-light-success icon-btn">
+                <i class="ti ti-edit text-success"></i>
+            </button>
+            <button class="btn btn-light-danger icon-btn delete-btn">
+                <i class="ti ti-trash"></i>
+            </button>
+        </div>
+         ';
+            })
+            ->rawColumns(["actions"])
+            ->make(true);
+    }
+    // Teknik Servis Kayıt Detay Sayfası
+    public function edit($domain)
+    {
+         if (!can("technical-service/list", "read")) {
+            return view("no-authority");
+        }
+        $company = auth()->user()->company_id;
+
+        return view('technical-service.edit');
     }
 }
