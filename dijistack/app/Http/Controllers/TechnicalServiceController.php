@@ -11,6 +11,7 @@ use App\Models\ServicePriorityStatus;
 use App\Models\ServiceStorageLocation;
 use App\Models\ServiceDeliveryMethod;
 use App\Models\ServiceTicket;
+use App\Models\Country;
 
 
 class TechnicalServiceController extends Controller
@@ -40,7 +41,8 @@ class TechnicalServiceController extends Controller
         ->get();
         $serviceDeliveryMethods = ServiceDeliveryMethod::where('company_id',$company)->get();
         $serviceTicket = ServiceTicket::where('company_id',$company)->where('status',"Aktif")->get();
+        $countries = Country::orderBy('baslik')->get();
 
-        return view('technical-service.create',compact('company','customers','products','faultCategories','servicePriorityStatus','serviceStorageLocation','serviceDeliveryMethods','serviceTicket'));
+        return view('technical-service.create',compact('company','customers','products','faultCategories','servicePriorityStatus','serviceStorageLocation','serviceDeliveryMethods','serviceTicket','countries'));
     }
 }

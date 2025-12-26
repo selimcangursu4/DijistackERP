@@ -216,26 +216,22 @@
                                 <textarea class="form-control" name="address" id="address" rows="2"></textarea>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Ülke</label>
-                                <select class="form-select" name="country_id" id="country_id">
-                                    <option value="1">Türkiye</option>
+                                <label class="form-label">Ulke</label>
+                                <select class="form-select" id="country_id" name="country_id">
+                                    <option value="">Seciniz</option>
+                                    @foreach ($countries as $country)
+                                        <option value="{{ $country->id }}">{{ $country->baslik }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Şehir</label>
-                                <select class="form-select" name="city_id" id="city_id">
-                                    <option value="1">İstanbul</option>
-                                    <option value="2">Ankara</option>
-                                    <option value="3">İzmir</option>
-                                </select>
+                                <label class="form-label">Sehir</label>
+                                <select class="form-select" id="city_id" name="city_id" disabled></select>
                             </div>
+
                             <div class="col-md-3">
-                                <label class="form-label">İlçe</label>
-                                <select class="form-select" name="district_id" id="district_id">
-                                    <option value="1">Kadıköy</option>
-                                    <option value="2">Çankaya</option>
-                                    <option value="3">Bornova</option>
-                                </select>
+                                <label class="form-label">Ilce</label>
+                                <select class="form-select" id="district_id" name="district_id" disabled></select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Posta Kodu</label>
@@ -275,7 +271,6 @@
     <script>
         $(document).ready(function() {
             const domain = "{{ request()->route('domain') }}";
-
             // Kullanıcı müşteri arama alanına yazdıkça tetiklenir
             $('#customerSearch').on('keyup', function() {
                 let query = $(this).val();
@@ -309,14 +304,12 @@
                     }
                 });
             });
-
             // Listeden bir müşteri seçildiğinde çalışır
             $(document).on('click', '#customerResult a', function() {
                 $('#customerSearch').val($(this).data('name'));
                 $('#selectedCustomer').val($(this).data('id'));
                 $('#customerResult').addClass('d-none');
             });
-
             // Müşteri tipi Kurumsal mı Bireysel mi kontrol eden fonksiyon
             function toggleCorporate() {
                 let type = $('#customer_type_id').val();
@@ -332,6 +325,37 @@
             toggleCorporate();
             // Müşteri tipi değiştiğinde tekrar kontrol et
             $('#customer_type_id').on('change', toggleCorporate);
+            // Ülkeye Göre Şehir Şehire Göre İlçelerin Listelenmesi
+            $('#country_id').change(function() {
+                let countryId = $(this).val();
+                $('#city_id').prop('disabled', true).html('');
+                $('#district_id').prop('disabled', true).html('');
+
+                if (countryId) {
+                    $.get('/location/cities/' + countryId, function(data) {
+                        let options = '<option value="">Seciniz</option>';
+                        data.forEach(function(city) {
+                            options += `<option value="${city.id}">${city.baslik}</option>`;
+                        });
+                        $('#city_id').html(options).prop('disabled', false);
+                    });
+                }
+            });
+            $('#city_id').change(function() {
+                let cityId = $(this).val();
+                $('#district_id').prop('disabled', true).html('');
+
+                if (cityId) {
+                    $.get('/location/districts/' + cityId, function(data) {
+                        let options = '<option value="">Seciniz</option>';
+                        data.forEach(function(district) {
+                            options +=
+                                `<option value="${district.id}">${district.baslik}</option>`;
+                        });
+                        $('#district_id').html(options).prop('disabled', false);
+                    });
+                }
+            });
             // Yeni Müşteri Ekle
             $('#customerInsertButton').click(function(e) {
                 e.preventDefault();

@@ -10,7 +10,8 @@ use App\Http\Controllers\{
     WhatsaapBotController,
     WhatsAppChatController,
     TechnicalServiceController,
-    CustomerController
+    CustomerController,
+    LocationController
 };
 // Erişim Yetkiniz Sayfası
 Route::get('/no-authority', function () {
@@ -29,6 +30,15 @@ Route::post('/whatsapp/chat/send', [WhatsAppChatController::class, 'send'])->nam
 Route::middleware(['auth'])->group(function () {
     // Çıkış İşlemi
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+    
+    // Ülke Şehir İlçeler
+    Route::prefix('location')->group(function () {
+      Route::get('/countries', [LocationController::class, 'countries']);
+      Route::get('/cities/{country}', [LocationController::class, 'cities']);
+      Route::get('/districts/{city}', [LocationController::class, 'districts']);
+    });
+
+
     // Domain (Şirket) Bazlı Yönetim Paneli
      Route::prefix('{domain}')->group(function () {
         // Kontrol Paneli Anasayfa
