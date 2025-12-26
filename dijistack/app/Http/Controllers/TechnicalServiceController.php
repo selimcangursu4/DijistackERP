@@ -12,37 +12,148 @@ use App\Models\ServiceStorageLocation;
 use App\Models\ServiceDeliveryMethod;
 use App\Models\ServiceTicket;
 use App\Models\Country;
-
+use App\Models\ServiceWarranty;
+use Carbon\Carbon;
 
 class TechnicalServiceController extends Controller
 {
+    // Teknik Servis Kayıtlarının Listelenmesi Sayfası
     public function list($domain)
     {
         if (!can("technical-service/list", "read")) {
-            return view('no-authority');
+            return view("no-authority");
         }
         $company = auth()->user()->company_id;
-        return view('technical-service.list', compact('company'));
+        return view("technical-service.list", compact("company"));
     }
-
+    // Teknik Servis Kaydı Oluşturma Sayfası
     public function create($domain)
     {
         if (!can("technical-service/create", "read")) {
-            return view('no-authority');
+            return view("no-authority");
         }
-        
-        $company = auth()->user()->company_id;
-        $customers = Customer::where('company_id', $company)->get();
-        $products = Product::where('company_id', $company)->get();  
-        $faultCategories = ServiceFaultCategory::where('company_id', $company)->get();
-        $servicePriorityStatus = ServicePriorityStatus::all(); 
-        $serviceStorageLocation = ServiceStorageLocation::where('status', 'Aktif')
-        ->where('company_id', $company)
-        ->get();
-        $serviceDeliveryMethods = ServiceDeliveryMethod::where('company_id',$company)->get();
-        $serviceTicket = ServiceTicket::where('company_id',$company)->where('status',"Aktif")->get();
-        $countries = Country::orderBy('baslik')->get();
 
-        return view('technical-service.create',compact('company','customers','products','faultCategories','servicePriorityStatus','serviceStorageLocation','serviceDeliveryMethods','serviceTicket','countries'));
+        $company = auth()->user()->company_id;
+        $customers = Customer::where("company_id", $company)->get();
+        $products = Product::where("company_id", $company)->get();
+        $faultCategories = ServiceFaultCategory::where(
+            "company_id",
+            $company
+        )->get();
+        $servicePriorityStatus = ServicePriorityStatus::all();
+        $serviceStorageLocation = ServiceStorageLocation::where(
+            "status",
+            "Aktif"
+        )
+            ->where("company_id", $company)
+            ->get();
+        $serviceDeliveryMethods = ServiceDeliveryMethod::where(
+            "company_id",
+            $company
+        )->get();
+        $serviceTicket = ServiceTicket::where("company_id", $company)
+            ->where("status", "Aktif")
+            ->get();
+        $countries = Country::orderBy("baslik")->get();
+
+        return view(
+            "technical-service.create",
+            compact(
+                "company",
+                "customers",
+                "products",
+                "faultCategories",
+                "servicePriorityStatus",
+                "serviceStorageLocation",
+                "serviceDeliveryMethods",
+                "serviceTicket",
+                "countries"
+            )
+        );
+    }
+    // Teknik Servis Kaydı Oluşturma Post İşlemi
+    public function store(Request $request, $domain)
+    {
+        if (!can("technical-service/create", "create")) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Bu islemi yapmaya yetkiniz yok",
+                ],
+                403
+            );
+        }
+
+        try {
+            // 1) Teknik Servis Kaydi Olustur
+             $startDate = Carbon::now();
+             $estimatedDate = $startDate->copy();
+
+             $addedDays = 0;
+             while ($addedDays < 21) {
+              $estimatedDate->addDay();
+
+             if (!$estimatedDate->isWeekend()) {
+              $addedDays++;
+             }
+            }
+
+            $service = TechnicalService::create([
+                "company_id" => auth()->user()->company_id,
+                "customer_id" => $request->customer_id,
+                "product_id" => $request->product_id,
+                "serial_number" => $request->imei,
+                "service_fault_category_id" => $request->fault_category_id,
+                "fault_description" => $request->fault_description,
+                "estimated_completion_date"=> $estimatedDate->format('Y-m-d'),
+                "service_priority_id" => $request->service_priority_id,
+                "service_status_id" => 1, // Varsayilan: Kayit Acildi
+                "rack_section_id" => $request->rack_section_id,
+                "invoice_date" => $request->invoice_date,
+                "delivery_method_id" => $request->delivery_method_id,
+                "notes" => $request->additional_note,
+                "user_id" => auth()->id(),
+                "service_ticket" => $request->service_ticket,
+            ]);
+            // 2) Garanti Hesaplama (Fatura Tarihi + 2 Yil)
+            if ($request->invoice_date && $request->imei) {
+                $exists = ServiceWarranty::where("imei", $request->imei)
+                    ->where("product_id", $request->product_id)
+                    ->exists();
+
+                // Eger ayni IMEI + ayni urun zaten varsa -> hicbir sey yapma
+                if (!$exists) {
+                    $invoiceDate = Carbon::parse($request->invoice_date);
+                    $warrantyEndDate = $invoiceDate->copy()->addYears(2);
+
+                    $warrantyStatus = now()->lte($warrantyEndDate)
+                        ? "Garanti Var"
+                        : "Garanti Yok";
+
+                    ServiceWarranty::create([
+                        "company_id" => auth()->user()->company_id,
+                        "product_id" => $request->product_id,
+                        "imei" => $request->imei,
+                        "invoice_date" => $invoiceDate,
+                        "warranty_end_date" => $warrantyEndDate,
+                        "warranty_status" => $warrantyStatus,
+                    ]);
+                }
+            }
+            return response()->json([
+                "success" => true,
+                "message" => "Servis kaydi basariyla olusturuldu",
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th);
+
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Islem sirasinda hata olustu",
+                ],
+                500
+            );
+        }
     }
 }

@@ -11,7 +11,8 @@ use App\Http\Controllers\{
     WhatsAppChatController,
     TechnicalServiceController,
     CustomerController,
-    LocationController
+    LocationController,
+    ServiceWarrantyController
 };
 // Erişim Yetkiniz Sayfası
 Route::get('/no-authority', function () {
@@ -30,15 +31,12 @@ Route::post('/whatsapp/chat/send', [WhatsAppChatController::class, 'send'])->nam
 Route::middleware(['auth'])->group(function () {
     // Çıkış İşlemi
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-    
     // Ülke Şehir İlçeler
     Route::prefix('location')->group(function () {
       Route::get('/countries', [LocationController::class, 'countries']);
       Route::get('/cities/{country}', [LocationController::class, 'cities']);
       Route::get('/districts/{city}', [LocationController::class, 'districts']);
     });
-
-
     // Domain (Şirket) Bazlı Yönetim Paneli
      Route::prefix('{domain}')->group(function () {
         // Kontrol Paneli Anasayfa
@@ -74,6 +72,7 @@ Route::middleware(['auth'])->group(function () {
             // Sayfalar
             Route::get('/list', [TechnicalServiceController::class, 'list'])->name('list');
             Route::get('/create', [TechnicalServiceController::class, 'create'])->name('create');
+            Route::post('/store', [TechnicalServiceController::class, 'store'])->name('store');
 
         });
         // Müşteri Yönetimi 
@@ -83,5 +82,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', [CustomerController::class, 'technicalServiceCustomerStore'])->name('store');
 
         });
+        // Teknik Servis Ürün Garanti   
+           Route::prefix('service-warranty')->group(function () {
+            Route::post('/check-imei', [ServiceWarrantyController::class, 'checkImei']);
+         });
     });
 });

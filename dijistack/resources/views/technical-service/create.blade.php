@@ -42,7 +42,7 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="customer_name" class="form-label">Ürün Bilgisi</label>
-                                        <select class="form-select" id="customer_name" name="customer_name">
+                                        <select class="form-select" id="product_id" name="product_id">
                                             <option value="">Ürün Seçiniz</option>
                                             @foreach ($products as $product)
                                                 <option value="{{ $product->id }}">{{ $product->name }}</option>
@@ -152,7 +152,7 @@
                         </div>
                     </div>
                     <div class="mt-4 float-end">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" id="createServiceButton" class="btn btn-primary">
                             <i class="bi bi-plus-circle"></i> Servis Kaydını Oluştur
                         </button>
                     </div>
@@ -391,6 +391,102 @@
                     },
                     error: function(xhr) {
                         alert("Müşteri kaydedilirken hata oluştu!");
+                    }
+                });
+            });
+            // Yeni Servis Kaydı Oluştur
+            $('#createServiceButton').click(function(e) {
+                e.preventDefault();
+
+                let data = {
+                    _token: $('input[name="_token"]').val(),
+                    customer_id: $('#selectedCustomer').val(),
+                    product_id: $('#product_id').val(),
+                    imei: $('#imei').val(),
+                    invoice_date: $('#invoice_date').val(),
+                    fault_category_id: $('#fault_category_id').val(),
+                    fault_description: $('#fault_description').val(),
+                    service_priority_id: $('#service_priority_id').val(),
+                    rack_section_id: $('#rack_section_id').val(),
+                    delivery_method_id: $('#delivery_method_id').val(),
+                    additional_note: $('#additional_note').val(),
+                    domain: domain,
+                    service_ticket: $('input[name="service_ticket[]"]:checked').map(function() {
+                        return $(this).val();
+                    }).get()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/" + domain + "/technical-service/store",
+                    data: data,
+
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Basarili',
+                                text: res.message,
+                                confirmButtonText: 'Tamam'
+
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Yetkisiz Islem',
+                                text: res.message,
+                                confirmButtonText: 'Tamam'
+
+                            });
+                        }
+                    },
+
+                    error: function(xhr) {
+                        if (xhr.status == 403) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Yetki Hatasi',
+                                text: 'Bu islemi yapmaya yetkiniz yok',
+                                confirmButtonText: 'Tamam'
+
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Hata',
+                                text: 'Sunucu hatasi olustu',
+                                confirmButtonText: 'Tamam'
+
+                            });
+                        }
+                    }
+                });
+            });
+            // İmei ile Fatura Tarihini Otomatik Ekleme
+            $('#imei').on('blur', function() {
+
+                let imei = $(this).val();
+
+                if (imei.length < 5) return;
+
+                $.ajax({
+                    type: "POST",
+                    url: "/" + domain + "/service-warranty/check-imei",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        imei: imei
+                    },
+                    success: function(res) {
+                        if (res.found) {
+                            $('#invoice_date').val(res.invoice_date);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Kayıt Bulundu',
+                                text: 'Fatura tarihi otomatik getirildi.',
+                                confirmButtonText: 'Tamam'
+                            });
+                        }
                     }
                 });
             });
