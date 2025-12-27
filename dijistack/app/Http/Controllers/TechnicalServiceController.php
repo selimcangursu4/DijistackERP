@@ -240,7 +240,13 @@ class TechnicalServiceController extends Controller
         $service = TechnicalService::where('company_id', $company)
                 ->where('id', $id)
                 ->firstOrFail();
+        $customers = Customer::select('customers.*', 'ulkeler.baslik as ulke', 'sehirler.baslik as sehir', 'ilceler.baslik as ilce')
+        ->leftJoin('ulkeler', 'customers.country_id', '=', 'ulkeler.id')
+        ->leftJoin('sehirler', 'customers.city_id', '=', 'sehirler.id')
+        ->leftJoin('ilceler', 'customers.district_id', '=', 'ilceler.id')
+        ->where('customers.id', $service->customer_id)
+        ->first();
 
-        return view('technical-service.edit',compact('service'));
+        return view('technical-service.edit',compact('service','customers'));
     }
 }
