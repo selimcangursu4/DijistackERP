@@ -18,6 +18,11 @@
     <link crossorigin href="https://fonts.gstatic.com/" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap"
           rel="stylesheet">
+
+    <link href="{{asset('assets/vendor/weather/weather-icons.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{asset('assets/vendor/weather/weather-icons-wind.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{asset('assets/vendor/ionio-icon/css/iconoir.css')}}" rel="stylesheet">
+    <link href="{{asset('assets/vendor/tabler-icons/tabler-icons.css')}}" rel="stylesheet" type="text/css">
     <link href="{{asset('assets/vendor/flag-icons-master/flag-icon.css')}}" rel="stylesheet" type="text/css">
     <link href="{{asset('assets/vendor/tabler-icons/tabler-icons.css')}}" rel="stylesheet" type="text/css">
     <link href="{{asset('assets/vendor/apexcharts/apexcharts.css')}}" rel="stylesheet" type="text/css">

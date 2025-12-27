@@ -206,29 +206,41 @@ class TechnicalServiceController extends Controller
         }
 
         return DataTables::of($query)
-            ->addColumn("actions", function ($row) {
-                return '
-          <div class="d-flex gap-1">
-            <button class="btn btn-light-success icon-btn">
+       ->addColumn("actions", function ($row) {
+
+        $editUrl = route('technical-service.edit', [
+            'domain' => request()->route('domain'),
+            'id'     => $row->id
+        ]);
+
+        return '
+        <div class="d-flex gap-1">
+            <a href="'.$editUrl.'" class="btn btn-light-success icon-btn" title="Düzenle">
                 <i class="ti ti-edit text-success"></i>
-            </button>
-            <button class="btn btn-light-danger icon-btn delete-btn">
+            </a>
+
+            <button class="btn btn-light-danger icon-btn delete-btn" 
+                    data-id="'.$row->id.'" 
+                    title="Sil">
                 <i class="ti ti-trash"></i>
             </button>
-        </div>
-         ';
-            })
-            ->rawColumns(["actions"])
-            ->make(true);
+        </div>';
+      })
+      ->rawColumns(["actions"])
+      ->make(true);
+
     }
     // Teknik Servis Kayıt Detay Sayfası
-    public function edit($domain)
+    public function edit($domain,$id)
     {
          if (!can("technical-service/list", "read")) {
             return view("no-authority");
         }
         $company = auth()->user()->company_id;
+        $service = TechnicalService::where('company_id', $company)
+                ->where('id', $id)
+                ->firstOrFail();
 
-        return view('technical-service.edit');
+        return view('technical-service.edit',compact('service'));
     }
 }

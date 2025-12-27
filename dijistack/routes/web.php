@@ -74,8 +74,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/create', [TechnicalServiceController::class, 'create'])->name('create');
             Route::post('/store', [TechnicalServiceController::class, 'store'])->name('store');
             Route::get('/fetch', [TechnicalServiceController::class, 'fetch'])->name('fetch');
-            Route::get('/edit/:id',[TechnicalServiceController::class,'edit'])->name('edit');
-
+            Route::get('/edit/{id}',[TechnicalServiceController::class,'edit'])->name('edit');
         });
         // Müşteri Yönetimi 
         Route::prefix('customers')->name('customers.')->group(function () {
