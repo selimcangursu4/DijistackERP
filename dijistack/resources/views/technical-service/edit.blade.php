@@ -9,8 +9,6 @@
                 Talep</button>
             <button class="btn btn-secondary btn-sm d-flex align-items-center gap-1"><i class="iconoir-printing-page"></i>
                 Servis Formu</button>
-            <button class="btn btn-success btn-sm d-flex align-items-center gap-1"><i class="iconoir-user-badge-check"></i>
-                Teknisyen Ata</button>
             <button class="btn btn-success btn-sm d-flex align-items-center gap-1"><i class="iconoir-attachment"></i> İşlem
                 Ekle</button>
             <button class="btn btn-success btn-sm d-flex align-items-center gap-1"><i class="iconoir-archive"></i> Dosya
@@ -136,8 +134,7 @@
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <strong>Durum:</strong>
-                                <span
-                                    class="badge {{ $customers->customer_status_id == 1 ? 'bg-success' : 'bg-danger' }}">
+                                <span class="badge {{ $customers->customer_status_id == 1 ? 'bg-success' : 'bg-danger' }}">
                                     {{ $customers->customer_status_id == 1 ? 'Aktif' : 'Pasif' }}
                                 </span>
 
@@ -326,14 +323,11 @@
                     </div>
                     <div class="tab-pane fade" id="tabSms">
                         <h5 class="mb-3">SMS Kayıtları</h5>
-
-
-                        <table id="smsTable" class="table table-bordered table-striped table-hover">
+                        <table id="smsTable" class="table table-bordered table-striped table-hover w-100">
                             <thead class="table">
                                 <tr>
                                     <th>#</th>
                                     <th>Modül</th>
-                                    <th>Kayıt ID</th>
                                     <th>Alıcı</th>
                                     <th>Telefon</th>
                                     <th>Mesaj</th>
@@ -343,61 +337,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Teknik Servis</td>
-                                    <td>102</td>
-                                    <td>Ahmet Yılmaz</td>
-                                    <td>05551234567</td>
-                                    <td>Servis kaydınız oluşturuldu.</td>
-                                    <td>Ali Vural</td>
-                                    <td><span class="badge bg-primary">Gönderildi</span></td>
-                                    <td>2025-01-10 10:15</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Satış</td>
-                                    <td>205</td>
-                                    <td>Ayşe Demir</td>
-                                    <td>05559876543</td>
-                                    <td>Satın aldığınız ürün kargoya verildi.</td>
-                                    <td>Ayşe Demir</td>
-                                    <td><span class="badge bg-success">Gönderildi</span></td>
-                                    <td>2025-01-10 14:20</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>İnsan Kaynakları</td>
-                                    <td>12</td>
-                                    <td>Mehmet Kara</td>
-                                    <td>05550123456</td>
-                                    <td>Toplantı hatırlatması: 15:00</td>
-                                    <td>HR Admin</td>
-                                    <td><span class="badge bg-warning">Beklemede</span></td>
-                                    <td>2025-01-11 09:05</td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Teknik Servis</td>
-                                    <td>103</td>
-                                    <td>Fatma Yıldız</td>
-                                    <td>05552345678</td>
-                                    <td>Parça değişimi tamamlandı.</td>
-                                    <td>Ali Vural</td>
-                                    <td><span class="badge bg-primary">Gönderildi</span></td>
-                                    <td>2025-01-12 11:45</td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Satış</td>
-                                    <td>208</td>
-                                    <td>Emre Aydın</td>
-                                    <td>05553456789</td>
-                                    <td>Fatura oluşturuldu.</td>
-                                    <td>Ayşe Demir</td>
-                                    <td><span class="badge bg-danger">Hata</span></td>
-                                    <td>2025-01-12 13:30</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -536,6 +475,46 @@
                     emptyTable: "Tabloda veri bulunmamaktadır"
                 }
             });
+            $('#smsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: "{{ route('technical-service.sms-logs-fetch', ['domain' => request()->route('domain'), 'id' => $service->id]) }}",
+                columns: [{
+                        data: 'id'
+                    },
+                    {
+                        data: 'module_name',
+                        orderable: false
+                    },
+                    {
+                        data: 'recipient_name'
+                    },
+                    {
+                        data: 'recipient_phone'
+                    },
+                    {
+                        data: 'message'
+                    },
+                    {
+                        data: 'sender_name',
+                        orderable: false
+                    },
+                    {
+                        data: 'status_badge',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'created_at'
+                    }
+                ],
+                order: [
+                    [0, 'desc']
+                ]
+            });
+
+
         });
     </script>
 @endsection

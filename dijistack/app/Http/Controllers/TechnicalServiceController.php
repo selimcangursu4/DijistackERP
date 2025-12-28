@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TechnicalService;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Module;
 use App\Models\ServiceFaultCategory;
 use App\Models\ServicePriorityStatus;
 use App\Models\ServiceStorageLocation;
@@ -16,6 +17,8 @@ use App\Models\ServiceWarranty;
 use App\Models\ServiceStatus;
 use App\Models\ServiceActivities;
 use App\Models\ServiceRecordNote;
+use App\Models\SmsLog;
+use App\Models\User;
 use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -398,7 +401,6 @@ class TechnicalServiceController extends Controller
             );
         }
     }
-
     // Teknik Servis Detay Sayfasında Servis Aktivitelerinin Listelenmesi
     public function serviceActivitiesFetch(Request $request, $domain, $id)
     {
@@ -472,6 +474,52 @@ class TechnicalServiceController extends Controller
                 ],
                 500
             );
+        }
+    }
+    // Teknik Servis Detay Sms Log Kayıtları Listele
+    public function singleFetchSmsLog(Request $request, $domain, $id)
+    {
+        try {
+            $companyId = auth()->user()->company_id;
+
+            $query = SmsLog::where("company_id", $companyId)
+                ->where("module_record_id", $id)
+                ->latest();
+
+            return DataTables::of($query)
+
+                ->addColumn("module_name", function ($row) {
+                    return optional(Module::find($row->module_id))->name ?? "-";
+                })
+
+                ->addColumn("sender_name", function ($row) {
+                    return optional(User::find($row->sent_by))->name ?? "-";
+                })
+
+                ->addColumn("status_badge", function ($row) {
+                    return match ($row->status) {
+                        "Gönderildi"
+                            => '<span class="badge bg-success">Gönderildi</span>',
+                        "Beklemede"
+                            => '<span class="badge bg-warning">Beklemede</span>',
+                        "Hata" => '<span class="badge bg-danger">Hata</span>',
+                    };
+                })
+
+                ->editColumn("created_at", function ($row) {
+                    return $row->created_at->format("d.m.Y H:i");
+                })
+
+                ->rawColumns(["status_badge"])
+                ->make(true);
+        } catch (\Exception $e) {
+            return response()->json([
+                "draw" => intval($request->draw),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => [],
+                "error" => $e->getMessage(),
+            ]);
         }
     }
 }
