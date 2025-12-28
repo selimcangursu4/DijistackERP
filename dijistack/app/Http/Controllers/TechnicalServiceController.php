@@ -15,6 +15,7 @@ use App\Models\Country;
 use App\Models\ServiceWarranty;
 use App\Models\ServiceStatus;
 use App\Models\ServiceActivities;
+use App\Models\ServiceRecordNote;
 use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -433,5 +434,44 @@ class TechnicalServiceController extends Controller
                 ]);
             })
             ->make(true);
-     }
+    }
+    // Teknik Servis Detay Sayfası Servis Notlarını Listele
+    public function serviceNotesFetch(Request $request, $domain, $id)
+    {
+        try {
+            $notes = ServiceRecordNote::select([
+                "service_record_notes.id",
+                "service_record_notes.notes",
+                "service_record_notes.created_at",
+                "users.name as user_name",
+            ])
+                ->leftJoin(
+                    "users",
+                    "users.id",
+                    "=",
+                    "service_record_notes.user_id"
+                )
+                ->where(
+                    "service_record_notes.company_id",
+                    auth()->user()->company_id
+                )
+                ->where("service_record_notes.service_id", $id)
+                ->orderBy("service_record_notes.created_at", "desc");
+
+            return DataTables::of($notes)
+                ->addIndexColumn()
+                ->editColumn("created_at", function ($row) {
+                    return $row->created_at->format("d.m.Y H:i");
+                })
+                ->make(true);
+        } catch (\Throwable $e) {
+            return response()->json(
+                [
+                    "error" => true,
+                    "message" => $e->getMessage(),
+                ],
+                500
+            );
+        }
+    }
 }

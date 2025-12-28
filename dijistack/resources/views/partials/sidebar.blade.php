@@ -63,7 +63,8 @@
                     @php $module = $companyModule->module; @endphp
                     <li>
                         <a data-bs-toggle="collapse" href="#module_{{ $module->id }}">
-                            <img class="me-2" src="{{ asset($module->icon) }}" style="width:22px; height:22px;">
+                            <img class="me-2" src="{{ asset('assets/svg/' . $module->icon) }}"
+                                style="width:22px; height:22px;">
                             {{ $module->name }}
                         </a>
 

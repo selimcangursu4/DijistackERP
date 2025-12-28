@@ -279,7 +279,7 @@
                     </div>
                     <div class="tab-pane fade" id="tabNotes">
                         <h5 class="mb-3">Servis Notları</h5>
-                        <table id="notesTable" class="table table-bordered table-striped table-hover">
+                        <table id="notesTable" class="table table-bordered table-striped table-hover w-100">
                             <thead class="table">
                                 <tr>
                                     <th>#</th>
@@ -428,7 +428,7 @@
                     {
                         data: 'product_name',
                         name: 'product.name'
-                    }, 
+                    },
                     {
                         data: 'imei',
                         name: 'imei'
@@ -502,20 +502,38 @@
                 }
             });
             $('#notesTable').DataTable({
-                "pageLength": 5,
-                "lengthChange": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "searching": false,
-                "language": {
-                    "paginate": {
-                        "previous": "Önceki",
-                        "next": "Sonraki"
+                processing: true,
+                serverSide: true,
+                pageLength: 5,
+                lengthChange: false,
+                searching: false,
+                ajax: "{{ route('technical-service.notes-fetch', ['domain' => request()->route('domain'), 'id' => $service->id]) }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
                     },
-                    "info": "_TOTAL_ kayıttan _START_ - _END_ gösteriliyor",
-                    "infoEmpty": "0 kayıttan 0 - 0 gösteriliyor",
-                    "emptyTable": "Tabloda veri bulunmamaktadır"
+                    {
+                        data: 'note',
+                        name: 'service_record_notes.note'
+                    },
+                    {
+                        data: 'user_name',
+                        name: 'users.name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'service_record_notes.created_at'
+                    }
+                ],
+                language: {
+                    paginate: {
+                        previous: "Önceki",
+                        next: "Sonraki"
+                    },
+                    info: "_TOTAL_ kayıttan _START_ - _END_ gösteriliyor",
+                    infoEmpty: "0 kayıttan 0 - 0 gösteriliyor",
+                    emptyTable: "Tabloda veri bulunmamaktadır"
                 }
             });
         });
