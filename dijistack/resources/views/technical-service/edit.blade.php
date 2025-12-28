@@ -394,8 +394,10 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        @csrf
+                    <form id="smsForm"> @csrf
+                        <input type="hidden" id="module_id" value="2">
+                        <input type="hidden" id="record_id" value="{{ $service->id }}">
+                        <input type="hidden" id="recipient_name" value="{{ $service->customer_name ?? '' }}">
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <label class="form-label">Telefon</label>
@@ -621,7 +623,83 @@
                     }
                 ]
             });
-        
+            $('#sendSms').click(function(e) {
+                e.preventDefault();
+                // Butonu pasife al ve yükleniyor göster
+                let $btn = $(this);
+                let originalText = $btn.html();
+                $btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Gönderiliyor...'
+                );
+                let phone = $('#phone').val();
+                let message = $('#message').val();
+                let module_id = $('#module_id').val();
+                let record_id = $('#record_id').val();
+                let recipient_name = $('#recipient_name').val();
+
+                // 3. Basit Doğrulama
+                if (message.trim() === '') {
+                    alert('Lütfen bir mesaj içeriği giriniz.');
+                    $btn.prop('disabled', false).html(originalText);
+                    return;
+                }
+
+                let currentPath = window.location.pathname;
+                let domainSegment = currentPath.split('/')[1];
+                let postUrl = '/' + domainSegment + '/sms/store';
+
+                $.ajax({
+                    url: postUrl,
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr(
+                            'content'),
+                        phone: phone,
+                        message: message,
+                        module_id: module_id,
+                        record_id: record_id,
+                        recipient_name: recipient_name
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Başarılı',
+                                text: response.message,
+                                confirmButtonText: 'Tamam'
+                            });
+                            $('#message').val('');
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Hata',
+                                text: response.message,
+                                confirmButtonText: 'Tamam'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Bir hata oluştu.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata',
+                            text: errorMsg,
+                            confirmButtonText: 'Tamam'
+                        });
+
+                        console.error(xhr);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+
+                });
+            });
+
 
         });
     </script>

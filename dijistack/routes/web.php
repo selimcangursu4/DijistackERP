@@ -23,6 +23,7 @@ Route::get('/no-authority', function () {
 Route::post('/whatsapp/webhook', [WhatsaapBotController::class, 'handleWebhook']);
 // Auth İşlemleri
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/create-user', [UserController::class, 'create'])->name('create');
 Route::post('/', [UserController::class, 'login'])->name('login.post');
 // WhatsApp Chat Görüntüleme ve Mesaj Gönderme
 Route::get('/whatsapp/chat/{session}', [WhatsAppChatController::class, 'show'])->name('whatsapp.chat');
@@ -45,12 +46,12 @@ Route::middleware(['auth'])->group(function () {
         // WhatsApp AI Yönetimi
         Route::prefix('whatsapp-management')->name('whatsapp.')->group(function () {
             Route::get('/whatsapp/messages', [WhatsAppChatController::class, 'index'])
-            ->name('whatsapp.messages'); 
+            ->name('whatsapp.messages');
             Route::get('/connection', [WhatsaapManagementController::class, 'connection'])->name('connection');
             // Ürün ve Hizmet (Knowledge Base) Yönetimi
             Route::prefix('services')->name('services.')->group(function () {
                 Route::get('/', [WhatsaapManagementController::class, 'index'])->name('index');
-                Route::get('/fetch', [WhatsaapManagementController::class, 'fetchServices'])->name('fetch'); 
+                Route::get('/fetch', [WhatsaapManagementController::class, 'fetchServices'])->name('fetch');
                 Route::get('/create', [WhatsaapManagementController::class, 'createService'])->name('create');
                 Route::get('/create-pdf', [WhatsaapManagementController::class, 'createServiceViaPDF'])->name('create.pdf');
                 Route::post('/store', [WhatsaapManagementController::class, 'storeService'])->name('store');
@@ -79,16 +80,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/sms-logs/{id}/fetch', [TechnicalServiceController::class, 'singleFetchSmsLog'])->name('sms-logs-fetch');
             Route::get('/request/{id}/fetch', [TechnicalServiceController::class, 'singleServiceRequestFetch'])->name('request-fetch');
         });
-        // Müşteri Yönetimi 
+        // Müşteri Yönetimi
         Route::prefix('customers')->name('customers.')->group(function () {
             Route::get('/search', [CustomerController::class, 'technicalServiceCustomerSearch'])->name('search');
             Route::post('/store', [CustomerController::class, 'technicalServiceCustomerStore'])->name('store');
         });
-        // Teknik Servis Ürün Garanti   
+        // Teknik Servis Ürün Garanti
         Route::prefix('service-warranty')->group(function () {
-            Route::post('/check-imei', [ServiceWarrantyController::class, 'checkImei']);    
+            Route::post('/check-imei', [ServiceWarrantyController::class, 'checkImei']);
          });
-        // Sms Log  
-       
+        // Sms Log
+        Route::prefix('sms')->name('sms')->group(function () {
+            Route::post('/store', [SmsLogController::class, 'singleSmsStore']);
+         });
+
     });
 });

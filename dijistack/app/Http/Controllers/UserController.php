@@ -9,14 +9,15 @@ use App\Models\Company;
 
 class UserController extends Controller
 {
+  // Giriş İşlemi
   public function login(Request $request)
   {
-    $request->validate([
+     $request->validate([
         'email' => 'required|email',
         'password' => 'required|string',
-    ]);
+     ]);
 
-    if (Auth::attempt($request->only('email', 'password'))) {
+     if (Auth::attempt($request->only('email', 'password'))) {
         $request->session()->regenerate();
 
         $user = Auth::user();
@@ -25,22 +26,41 @@ class UserController extends Controller
         return redirect()->route('dashboard', [
             'domain' => $company->domain
         ]);
-    }
+     }
 
-    return back()->withErrors([
+      return back()->withErrors([
         'email' => 'Email veya şifre hatalı'
-    ]);  
+      ]);
   }
-
-
-    // Çıkış işlemi
-    public function logout(Request $request)
-    {
+  // Çıkış İşlemi
+  public function logout(Request $request)
+  {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/')->with('success', 'Çıkış yapıldı');
 
-    }
+  }
+  // Statik Kullanıcı Ekle
+  public function create(Request $request)
+  {
+    $user = new User();
+    $user->company_id = 1;
+    $user->name = "Selimcan Gürsu";
+    $user->role_id = 1;
+    $user->status = "Aktif";
+    $user->email  = "selimcangursu@wikywatch.com.tr";
+    $user->deparment_id = 1;
+    $user->password = bcrypt('123456');
+    $user->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Yeni Kullanıcı Başarıyla Kaydedildi!'
+    ]);
+
+
+  }
+
 }
