@@ -16,4 +16,9 @@ class ServiceWarranty extends Model
         'warranty_end_date',
         'warranty_status'
     ];
+
+    public function product()
+{
+    return $this->belongsTo(Product::class, 'product_id');
+}
 }

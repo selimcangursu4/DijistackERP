@@ -164,137 +164,103 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Wiky Watch 5 Plus</td>
-                                    <td>123456789012345</td>
-                                    <td>2025-01-10</td>
-                                    <td>2026-01-10</td>
-                                    <td><span class="badge bg-success">Garanti Var</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Wiky Watch S</td>
-                                    <td>987654321098765</td>
-                                    <td>2024-07-05</td>
-                                    <td>2025-07-05</td>
-                                    <td><span class="badge bg-danger">Garanti Yok</span></td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Wiky Tablet X</td>
-                                    <td>456789123456789</td>
-                                    <td>2025-03-15</td>
-                                    <td>2026-03-15</td>
-                                    <td><span class="badge bg-success">Garanti Var</span></td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Wiky Phone Z</td>
-                                    <td>321654987321654</td>
-                                    <td>2024-12-01</td>
-                                    <td>2025-12-01</td>
-                                    <td><span class="badge bg-success">Garanti Var</span></td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Wiky Tablet S</td>
-                                    <td>654987321654987</td>
-                                    <td>2024-10-20</td>
-                                    <td>2025-10-20</td>
-                                    <td><span class="badge bg-danger">Garanti Yok</span></td>
-                                </tr>
+
                             </tbody>
                         </table>
 
                     </div>
                     <div class="tab-pane fade" id="tabService">
                         <h5 class="mb-3">Teknik Servis Detayları</h5>
-
-
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Servis ID:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">#1024</span></div>
+                            <div class="col-md-8"><span class="text-muted">#{{ $service->id }}</span></div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Müşteri:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Ahmet Yılmaz</span></div>
+                            <div class="col-md-8">
+                                <span class="text-muted">{{ $service->company_name ?? $service->customer_name }}</span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Ürün:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Wiky Watch 5 Plus</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->product_name }}</span></div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Seri Numarası:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">123456789012345</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->serial_number }}</span></div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Arıza Kategorisi:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Donanım Sorunu</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->fault_category }}</span></div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Arıza Açıklaması:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Ekran donuyor ve dokunmatik tepki
-                                    vermiyor.</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->fault_description }}</span></div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Servis Önceliği:</strong></div>
-                            <div class="col-md-8"><span class="badge bg-warning">Yüksek</span></div>
+                            <div class="col-md-8">
+                                <span class="badge bg-warning">{{ $service->priority_status }}</span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Servis Durumu:</strong></div>
-                            <div class="col-md-8"><span class="badge bg-primary">Devam Ediyor</span></div>
+                            <div class="col-md-8">
+                                <span class="badge bg-primary">{{ $service->service_status }}</span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Raf/Bölüm:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Raf 3 / Bölüm B</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->storage_location ?? '-' }}</span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Tahmini Tamamlanma:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">2025-01-20</span></div>
+                            <div class="col-md-8">
+                                <span class="text-muted">
+                                    {{ $service->estimated_completion_date
+                                        ? \Carbon\Carbon::parse($service->estimated_completion_date)->format('d.m.Y')
+                                        : '-' }}
+                                </span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Gerçek Tamamlanma:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">-</span></div>
+                            <div class="col-md-8">
+                                <span class="text-muted">
+                                    {{ $service->actual_completion_date
+                                        ? \Carbon\Carbon::parse($service->actual_completion_date)->format('d.m.Y')
+                                        : '-' }}
+                                </span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Fatura Tarihi:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">2025-01-10</span></div>
+                            <div class="col-md-8">
+                                <span class="text-muted">
+                                    {{ $service->invoice_date ? \Carbon\Carbon::parse($service->invoice_date)->format('d.m.Y') : '-' }}
+                                </span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Parça Gerekiyor:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Evet</span></div>
+                            <div class="col-md-8">
+                                <span class="text-muted">{{ $service->need_part ? 'Evet' : 'Hayır' }}</span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Teslimat Yöntemi:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Kargo</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->delivery_methods ?? '-' }}</span>
+                            </div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Ek Notlar:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Müşteri ekran değişimi istiyor, hızlı
-                                    teslimat talep edildi.</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->notes ?? '-' }}</span></div>
                         </div>
-
                         <div class="row mb-2">
                             <div class="col-md-4"><strong>Servisi Yapan Kullanıcı:</strong></div>
-                            <div class="col-md-8"><span class="text-muted">Teknisyen: Ali Vural</span></div>
+                            <div class="col-md-8"><span class="text-muted">{{ $service->created_by_user }}</span></div>
                         </div>
-
                     </div>
                     <div class="tab-pane fade" id="tabHistory">
                         <h5 class="mb-3">Servis İşlem Geçmişi</h5>
@@ -484,21 +450,50 @@
     <script>
         $(document).ready(function() {
             $('#warrantyTable').DataTable({
-                "pageLength": 5,
-                "lengthChange": false,
-                "ordering": true,
-                "searching": false,
-                "info": true,
-                "autoWidth": false,
-                "language": {
-                    "search": "Ara:",
-                    "paginate": {
-                        "previous": "Önceki",
-                        "next": "Sonraki"
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('technical-service.warranty-data', ['domain' => $domain, 'id' => $service->id]) }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
                     },
-                    "info": "_TOTAL_ kayıttan _START_ - _END_ gösteriliyor",
-                    "infoEmpty": "0 kayıttan 0 - 0 gösteriliyor",
-                    "emptyTable": "Tabloda veri bulunmamaktadır"
+                    {
+                        data: 'product_name',
+                        name: 'product_name'
+                    },
+                    {
+                        data: 'imei',
+                        name: 'imei'
+                    },
+                    {
+                        data: 'invoice_date',
+                        name: 'invoice_date'
+                    },
+                    {
+                        data: 'warranty_end_date',
+                        name: 'warranty_end_date'
+                    },
+                    {
+                        data: 'warranty_status',
+                        name: 'warranty_status',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                pageLength: 5,
+                lengthChange: false,
+                searching: false,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                language: {
+                    paginate: {
+                        previous: "Önceki",
+                        next: "Sonraki"
+                    },
+                    info: "_TOTAL_ kayıttan _START_ - _END_ gösteriliyor",
+                    infoEmpty: "0 kayıttan 0 - 0 gösteriliyor",
+                    emptyTable: "Tabloda veri bulunmamaktadır"
                 }
             });
             $('#activityTable').DataTable({

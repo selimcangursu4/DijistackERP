@@ -16,6 +16,7 @@ use App\Models\ServiceWarranty;
 use App\Models\ServiceStatus;
 use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class TechnicalServiceController extends Controller
 {
@@ -26,11 +27,23 @@ class TechnicalServiceController extends Controller
             return view("no-authority");
         }
         $company = auth()->user()->company_id;
-        $products = Product::where('company_id',$company)->get();
-        $faultCategories = ServiceFaultCategory::where('company_id',$company)->get();
+        $products = Product::where("company_id", $company)->get();
+        $faultCategories = ServiceFaultCategory::where(
+            "company_id",
+            $company
+        )->get();
         $priorityStatus = ServicePriorityStatus::all();
-        $serviceStatus = ServiceStatus::where('company_id',$company)->get();
-        return view("technical-service.list", compact("company","products","faultCategories","priorityStatus","serviceStatus"));
+        $serviceStatus = ServiceStatus::where("company_id", $company)->get();
+        return view(
+            "technical-service.list",
+            compact(
+                "company",
+                "products",
+                "faultCategories",
+                "priorityStatus",
+                "serviceStatus"
+            )
+        );
     }
     // Teknik Servis Kaydı Oluşturma Sayfası
     public function create($domain)
@@ -206,47 +219,118 @@ class TechnicalServiceController extends Controller
         }
 
         return DataTables::of($query)
-       ->addColumn("actions", function ($row) {
+            ->addColumn("actions", function ($row) {
+                $editUrl = route("technical-service.edit", [
+                    "domain" => request()->route("domain"),
+                    "id" => $row->id,
+                ]);
 
-        $editUrl = route('technical-service.edit', [
-            'domain' => request()->route('domain'),
-            'id'     => $row->id
-        ]);
-
-        return '
+                return '
         <div class="d-flex gap-1">
-            <a href="'.$editUrl.'" class="btn btn-light-success icon-btn" title="Düzenle">
+            <a href="' .
+                    $editUrl .
+                    '" class="btn btn-light-success icon-btn" title="Düzenle">
                 <i class="ti ti-edit text-success"></i>
             </a>
 
             <button class="btn btn-light-danger icon-btn delete-btn" 
-                    data-id="'.$row->id.'" 
+                    data-id="' .
+                    $row->id .
+                    '" 
                     title="Sil">
                 <i class="ti ti-trash"></i>
             </button>
         </div>';
-      })
-      ->rawColumns(["actions"])
-      ->make(true);
-
+            })
+            ->rawColumns(["actions"])
+            ->make(true);
     }
     // Teknik Servis Kayıt Detay Sayfası
-    public function edit($domain,$id)
+    public function edit($domain, $id)
     {
-         if (!can("technical-service/list", "read")) {
+        if (!can("technical-service/list", "read")) {
             return view("no-authority");
         }
         $company = auth()->user()->company_id;
-        $service = TechnicalService::where('company_id', $company)
-                ->where('id', $id)
-                ->firstOrFail();
-        $customers = Customer::select('customers.*', 'ulkeler.baslik as ulke', 'sehirler.baslik as sehir', 'ilceler.baslik as ilce')
-        ->leftJoin('ulkeler', 'customers.country_id', '=', 'ulkeler.id')
-        ->leftJoin('sehirler', 'customers.city_id', '=', 'sehirler.id')
-        ->leftJoin('ilceler', 'customers.district_id', '=', 'ilceler.id')
-        ->where('customers.id', $service->customer_id)
+        $service = TechnicalService::select([
+        "technical_services.*",
+        "customers.fullname as customer_name",
+        'customers.company_name as company_name',
+        "customers.phone as customer_phone",
+        "products.name as product_name",
+        "service_fault_categories.name as fault_category",
+        "service_priority_statues.name as priority_status",
+        "service_statues.name as service_status",
+        "service_delivery_methods.name as delivery_methods",
+        // Storage Location (rack - shelf - bin birlestiriliyor)
+        DB::raw(
+        "CONCAT(service_storage_locations.rack,' / ',service_storage_locations.shelf,' / ',service_storage_locations.bin) as storage_location"
+        ),
+        "users.name as created_by_user",
+        ])
+        ->leftJoin("customers","technical_services.customer_id","=","customers.id")
+        ->leftJoin("products","technical_services.product_id","=","products.id")
+        ->leftJoin("service_fault_categories","technical_services.service_fault_category_id","=","service_fault_categories.id")
+        ->leftJoin("service_priority_statues","technical_services.service_priority_id","=","service_priority_statues.id")
+        ->leftJoin("service_statues","technical_services.service_status_id","=","service_statues.id")
+        ->leftJoin("service_storage_locations","technical_services.rack_section_id","=","service_storage_locations.id")
+        ->leftJoin("users", "technical_services.user_id", "=", "users.id")
+        ->leftJoin("service_delivery_methods", "technical_services.delivery_method_id", "=", "service_delivery_methods.id")
+        ->where("technical_services.company_id", $company)
+        ->where("technical_services.id", $id)
+        ->firstOrFail();
+        $customers = Customer::select(
+        "customers.*",
+        "ulkeler.baslik as ulke",
+        "sehirler.baslik as sehir",
+        "ilceler.baslik as ilce"
+        )
+        ->leftJoin("ulkeler", "customers.country_id", "=", "ulkeler.id")
+        ->leftJoin("sehirler", "customers.city_id", "=", "sehirler.id")
+        ->leftJoin("ilceler", "customers.district_id", "=", "ilceler.id")
+        ->where("customers.id", $service->customer_id)
         ->first();
+        return view(
+            "technical-service.edit",
+            compact("service", "customers", "domain")
+        );
+    }
+    // Teknik Servis Kayıt Detay Sayfası Garanti Durumu Listelenmesi
+    public function serviceProductWarrantyStatuses($domain, $id)
+    {
+        $company = auth()->user()->company_id;
+        $service = TechnicalService::where("company_id", $company)->findOrFail(
+            $id
+        );
+        $warranties = ServiceWarranty::where("company_id", $company)
+            ->where("imei", $service->imei)
+            ->select([
+                "id",
+                "product_id",
+                "imei",
+                "invoice_date",
+                "warranty_end_date",
+                "warranty_status",
+            ])
+            ->get();
 
-        return view('technical-service.edit',compact('service','customers'));
+        return DataTables::of($warranties)
+            ->addColumn("product_name", function ($row) {
+                return $row->product->name ?? "Bilinmiyor";
+            })
+            ->editColumn("warranty_status", function ($row) {
+                $badgeClass =
+                    $row->warranty_status == "Garanti Var"
+                        ? "bg-success"
+                        : "bg-danger";
+                return '<span class="badge ' .
+                    $badgeClass .
+                    '">' .
+                    $row->warranty_status .
+                    "</span>";
+            })
+            ->addIndexColumn()
+            ->rawColumns(["warranty_status"])
+            ->make(true);
     }
 }

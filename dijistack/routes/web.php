@@ -75,6 +75,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', [TechnicalServiceController::class, 'store'])->name('store');
             Route::get('/fetch', [TechnicalServiceController::class, 'fetch'])->name('fetch');
             Route::get('/edit/{id}',[TechnicalServiceController::class,'edit'])->name('edit');
+            Route::get('/warranty-data',[TechnicalServiceController::class,'serviceProductWarrantyStatuses'])->name('warranty-data');
         });
         // Müşteri Yönetimi 
         Route::prefix('customers')->name('customers.')->group(function () {
@@ -86,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
         // Teknik Servis Ürün Garanti   
            Route::prefix('service-warranty')->group(function () {
             Route::post('/check-imei', [ServiceWarrantyController::class, 'checkImei']);
+             
          });
     });
 });
