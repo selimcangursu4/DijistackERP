@@ -2,7 +2,8 @@
 @section('main')
     <div class="container-fluid">
         <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+            <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal"
+                data-bs-target="#smsModal">
                 <i class="iconoir-send"></i> SMS Gönder
             </button>
             <button class="btn btn-warning btn-sm d-flex align-items-center gap-1"><i class="iconoir-pc-check"></i> Öncelik
@@ -23,7 +24,6 @@
         <div class="col-md-12">
             <div class="alert alert-white d-flex justify-content-between align-items-center">
                 <strong class="text-dark">Servis Aciliyeti:</strong>
-
                 @php
                     $priority = strtoupper($service->priority_status);
 
@@ -40,7 +40,6 @@
                 </span>
             </div>
         </div>
-
         <div class="col-md-12">
             <div class="card border-primary">
                 <div class="card-header">
@@ -154,7 +153,8 @@
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <strong>Durum:</strong>
-                                <span class="badge {{ $customers->customer_status_id == 1 ? 'bg-success' : 'bg-danger' }}">
+                                <span
+                                    class="badge {{ $customers->customer_status_id == 1 ? 'bg-success' : 'bg-danger' }}">
                                     {{ $customers->customer_status_id == 1 ? 'Aktif' : 'Pasif' }}
                                 </span>
 
@@ -383,6 +383,42 @@
         </div>
     </div>
     </div>
+
+    <div class="modal fade" id="smsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white d-flex align-items-center justify-content-between">
+                        <span><i class="iconoir-send me-2"></i> Müşteriye SMS Gönder</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        @csrf
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Telefon</label>
+                                <input type="text" id="phone" class="form-control"
+                                    value="{{ $service->customer_phone }}" readonly>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Mesaj</label>
+                                <textarea class="form-control" id="message" rows="4" placeholder="Gönderilecek SMS içeriğini yazınız..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                            <button type="button" id="sendSms" class="btn btn-primary">
+                                <i class="iconoir-send"></i> Gönder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
             $('#warrantyTable').DataTable({
@@ -585,6 +621,8 @@
                     }
                 ]
             });
+        
+
         });
     </script>
 @endsection

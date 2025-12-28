@@ -12,7 +12,8 @@ use App\Http\Controllers\{
     TechnicalServiceController,
     CustomerController,
     LocationController,
-    ServiceWarrantyController
+    ServiceWarrantyController,
+    SmsLogController
 };
 // Erişim Yetkiniz Sayfası
 Route::get('/no-authority', function () {
@@ -45,7 +46,6 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('whatsapp-management')->name('whatsapp.')->group(function () {
             Route::get('/whatsapp/messages', [WhatsAppChatController::class, 'index'])
             ->name('whatsapp.messages'); 
-            // Sayfalar
             Route::get('/connection', [WhatsaapManagementController::class, 'connection'])->name('connection');
             // Ürün ve Hizmet (Knowledge Base) Yönetimi
             Route::prefix('services')->name('services.')->group(function () {
@@ -53,7 +53,6 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/fetch', [WhatsaapManagementController::class, 'fetchServices'])->name('fetch'); 
                 Route::get('/create', [WhatsaapManagementController::class, 'createService'])->name('create');
                 Route::get('/create-pdf', [WhatsaapManagementController::class, 'createServiceViaPDF'])->name('create.pdf');
-                // İşlemler (Store, Update, Delete)
                 Route::post('/store', [WhatsaapManagementController::class, 'storeService'])->name('store');
                 Route::post('/store-pdf', [WhatsaapManagementController::class, 'storePDF'])->name('storePDF');
                 Route::post('/update', [WhatsaapManagementController::class, 'updateService'])->name('update');
@@ -69,7 +68,6 @@ Route::middleware(['auth'])->group(function () {
         });
         // Teknik Servis Yönetimi
         Route::prefix('technical-service')->name('technical-service.')->group(function () {
-            // Sayfalar
             Route::get('/list', [TechnicalServiceController::class, 'list'])->name('list');
             Route::get('/create', [TechnicalServiceController::class, 'create'])->name('create');
             Route::post('/store', [TechnicalServiceController::class, 'store'])->name('store');
@@ -83,15 +81,14 @@ Route::middleware(['auth'])->group(function () {
         });
         // Müşteri Yönetimi 
         Route::prefix('customers')->name('customers.')->group(function () {
-            // Sayfalar
             Route::get('/search', [CustomerController::class, 'technicalServiceCustomerSearch'])->name('search');
             Route::post('/store', [CustomerController::class, 'technicalServiceCustomerStore'])->name('store');
-
         });
         // Teknik Servis Ürün Garanti   
-           Route::prefix('service-warranty')->group(function () {
-            Route::post('/check-imei', [ServiceWarrantyController::class, 'checkImei']);
-             
+        Route::prefix('service-warranty')->group(function () {
+            Route::post('/check-imei', [ServiceWarrantyController::class, 'checkImei']);    
          });
+        // Sms Log  
+       
     });
 });

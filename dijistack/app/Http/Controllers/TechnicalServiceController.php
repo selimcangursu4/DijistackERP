@@ -334,21 +334,21 @@ class TechnicalServiceController extends Controller
             ->first();
         
             $remainingDays = null;
-$progressPercent = 0;
+            $progressPercent = 0;
 
-if ($service->estimated_completion_date) {
-    $today = Carbon::today();
-    $estimatedDate = Carbon::parse($service->estimated_completion_date);
+            if ($service->estimated_completion_date) {
+              $today = Carbon::today();
+              $estimatedDate = Carbon::parse($service->estimated_completion_date);
 
-    $totalDays = Carbon::parse($service->created_at)->diffInDays($estimatedDate);
-    $remainingDays = $today->diffInDays($estimatedDate, false);
+              $totalDays = Carbon::parse($service->created_at)->diffInDays($estimatedDate);
+              $remainingDays = $today->diffInDays($estimatedDate, false);
 
-    $usedDays = $totalDays - $remainingDays;
+              $usedDays = $totalDays - $remainingDays;
 
-    if ($totalDays > 0) {
-        $progressPercent = min(100, max(0, ($usedDays / $totalDays) * 100));
-    }
-}
+              if ($totalDays > 0) {
+                 $progressPercent = min(100, max(0, ($usedDays / $totalDays) * 100));
+               }
+         }
         return view(
             "technical-service.edit",
             compact("service", "customers", "domain","remainingDays","progressPercent")
@@ -542,7 +542,7 @@ if ($service->estimated_completion_date) {
         }
     }
     // Teknik Servis Detay Kayıt Hakkında Oluşturulan Talepler
-    public function singleServiceRequestFetch(Request $request, $domain, $id)
+    public function singleServiceRequestFetch(Request $request, $domain ,$id)
     {
       $companyId = auth()->user()->company_id;
 
