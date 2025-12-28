@@ -240,10 +240,10 @@ class TechnicalServiceController extends Controller
                 <i class="ti ti-edit text-success"></i>
             </a>
 
-            <button class="btn btn-light-danger icon-btn delete-btn" 
+            <button class="btn btn-light-danger icon-btn delete-btn"
                     data-id="' .
                     $row->id .
-                    '" 
+                    '"
                     title="Sil">
                 <i class="ti ti-trash"></i>
             </button>
@@ -332,7 +332,7 @@ class TechnicalServiceController extends Controller
             ->leftJoin("ilceler", "customers.district_id", "=", "ilceler.id")
             ->where("customers.id", $service->customer_id)
             ->first();
-        
+
             $remainingDays = null;
             $progressPercent = 0;
 
@@ -349,9 +349,16 @@ class TechnicalServiceController extends Controller
                  $progressPercent = min(100, max(0, ($usedDays / $totalDays) * 100));
                }
          }
+        $priorityStatus = ServicePriorityStatus::all();
+        $activeModules = Module::select('modules.*')
+       ->join('company_modules', 'modules.id', '=', 'company_modules.module_id')
+       ->where('company_modules.company_id', $company)
+       ->where('company_modules.status', 'Aktif')
+       ->get();
+
         return view(
             "technical-service.edit",
-            compact("service", "customers", "domain","remainingDays","progressPercent")
+            compact("service", "customers", "domain","remainingDays","progressPercent","priorityStatus","activeModules")
         );
     }
     // Teknik Servis Detay Sayfası Garanti Durumu Listelenmesi
@@ -559,7 +566,7 @@ class TechnicalServiceController extends Controller
         ->editColumn('created_at', fn($row) => $row->created_at->format('d.m.Y H:i'))
         ->addColumn('action', function ($row) {
             return '
-                <a href="#" 
+                <a href="#"
                    class="btn btn-sm btn-primary">Detay</a>
             ';
         })

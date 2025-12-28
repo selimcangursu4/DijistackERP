@@ -6,8 +6,9 @@
                 data-bs-target="#smsModal">
                 <i class="iconoir-send"></i> SMS Gönder
             </button>
-            <button class="btn btn-warning btn-sm d-flex align-items-center gap-1"><i class="iconoir-pc-check"></i> Öncelik
-                Talep</button>
+            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#serviceRequestModal">
+                Yeni Talep Oluştur
+            </button>
             <button class="btn btn-secondary btn-sm d-flex align-items-center gap-1"><i class="iconoir-printing-page"></i>
                 Servis Formu</button>
             <button class="btn btn-success btn-sm d-flex align-items-center gap-1"><i class="iconoir-attachment"></i> İşlem
@@ -420,6 +421,66 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="serviceRequestModal" tabindex="-1" aria-labelledby="serviceRequestModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="serviceRequestModalLabel">Yeni Talep Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="serviceRequestForm">
+                        @csrf
+                        <input type="hidden" name="company_id" value="{{ Auth::user()->company_id ?? 1 }}">
+                        <input type="hidden" name="service_id" value="{{ $service->id ?? null }}">
+                        <input type="hidden" name="created_by" value="{{ Auth::id() }}">
+                        <div class="mb-3">
+                            <label for="request_type" class="form-label">Talep Türü</label>
+                            <select class="form-select" id="request_type" name="request_type" required>
+                                <option value="">Seçiniz</option>
+                                <option value="Müşteri Talebi">Müşteri Talebi</option>
+                                <option value="Personel Talebi">Personel Talebi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="priority_id" class="form-label">Öncelik Seviyesi</label>
+                            <select class="form-select" id="priority_id" name="priority_id" required>
+                                <option value="">Seçiniz</option>
+                                @foreach ($priorityStatus as $priority)
+                                    <option value="{{ $priority->id }}">{{ $priority->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Talep Başlığı</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                placeholder="Talep başlığını giriniz" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Talep Açıklaması</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                placeholder="Talep detayını giriniz" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="module_id" class="form-label">İlgili Birim (Module ID)</label>
+                            <select class="form-select" id="module_id" name="module_id" required>
+                                <option value="">Seçiniz</option>
+                                @foreach ($activeModules as $module)
+                                    <option value={{ $module->id }}>{{ $module->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                            <button type="button" id="submitServiceRequest" class="btn btn-primary">Talep
+                                Oluştur</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -625,7 +686,6 @@
             });
             $('#sendSms').click(function(e) {
                 e.preventDefault();
-                // Butonu pasife al ve yükleniyor göster
                 let $btn = $(this);
                 let originalText = $btn.html();
                 $btn.prop('disabled', true).html(
@@ -637,7 +697,6 @@
                 let record_id = $('#record_id').val();
                 let recipient_name = $('#recipient_name').val();
 
-                // 3. Basit Doğrulama
                 if (message.trim() === '') {
                     alert('Lütfen bir mesaj içeriği giriniz.');
                     $btn.prop('disabled', false).html(originalText);
@@ -699,6 +758,10 @@
 
                 });
             });
+            $('#submitServiceRequest').click(function(e) {
+                e.preventDefault();
+
+            })
 
 
         });

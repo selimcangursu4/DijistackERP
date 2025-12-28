@@ -12,4 +12,10 @@ class Company extends Model
     {
         return $this->hasMany(User::class, 'company_id');
     }
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'company_modules', 'company_id', 'module_id')
+                    ->withPivot('status','activated_at','deactivated_at')
+                    ->withTimestamps();
+    }
 }
