@@ -332,9 +332,26 @@ class TechnicalServiceController extends Controller
             ->leftJoin("ilceler", "customers.district_id", "=", "ilceler.id")
             ->where("customers.id", $service->customer_id)
             ->first();
+        
+            $remainingDays = null;
+$progressPercent = 0;
+
+if ($service->estimated_completion_date) {
+    $today = Carbon::today();
+    $estimatedDate = Carbon::parse($service->estimated_completion_date);
+
+    $totalDays = Carbon::parse($service->created_at)->diffInDays($estimatedDate);
+    $remainingDays = $today->diffInDays($estimatedDate, false);
+
+    $usedDays = $totalDays - $remainingDays;
+
+    if ($totalDays > 0) {
+        $progressPercent = min(100, max(0, ($usedDays / $totalDays) * 100));
+    }
+}
         return view(
             "technical-service.edit",
-            compact("service", "customers", "domain")
+            compact("service", "customers", "domain","remainingDays","progressPercent")
         );
     }
     // Teknik Servis Detay Sayfası Garanti Durumu Listelenmesi

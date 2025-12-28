@@ -23,21 +23,41 @@
         <div class="col-md-12">
             <div class="alert alert-white d-flex justify-content-between align-items-center">
                 <strong class="text-dark">Servis Aciliyeti:</strong>
-                <span class="badge bg-danger">YÜKSEK</span>
+
+                @php
+                    $priority = strtoupper($service->priority_status);
+
+                    $badgeClass = match ($priority) {
+                        'ACİL', 'YÜKSEK' => 'bg-danger',
+                        'ORTA' => 'bg-warning',
+                        'DÜŞÜK' => 'bg-success',
+                        default => 'bg-secondary',
+                    };
+                @endphp
+
+                <span class="badge {{ $badgeClass }} px-3 py-2">
+                    {{ $service->priority_status }}
+                </span>
             </div>
         </div>
+
         <div class="col-md-12">
             <div class="card border-primary">
                 <div class="card-header">
                     <h5> <small>Kalan Yasal Süre</small></h5>
                 </div>
                 <div class="card-body text-center">
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: 50%;" aria-valuenow="50"
-                            aria-valuemin="0" aria-valuemax="100">
-                            5 Gün Kaldı
+                    @if ($remainingDays !== null)
+                        <div class="progress" style="height: 22px;">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                style="width: {{ round($progressPercent) }}%;" aria-valuenow="{{ round($progressPercent) }}"
+                                aria-valuemin="0" aria-valuemax="100">
+                                {{ $remainingDays > 0 ? $remainingDays . ' Gun Kaldi' : 'Suresi Doldu' }}
+                            </div>
                         </div>
-                    </div>
+                    @else
+                        <span class="text-muted">Tahmini bitis tarihi girilmemis</span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -541,7 +561,7 @@
                         data: 'title'
                     },
                     {
-                        data:"module"
+                        data: "module"
                     },
                     {
                         data: 'request_type'
@@ -565,8 +585,6 @@
                     }
                 ]
             });
-
-
         });
     </script>
 @endsection
