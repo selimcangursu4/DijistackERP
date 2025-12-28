@@ -152,7 +152,8 @@
                     </div>
                     <div class="tab-pane fade" id="tabDevice">
                         <h5 class="mb-3">Garanti & Cihaz</h5>
-                        <table id="warrantyTable" class="table table-bordered table-striped table-hover">
+                        <table id="warrantyTable" style="width: 100% !important"
+                            class="table table-bordered table-striped table-hover">
                             <thead class="table">
                                 <tr>
                                     <th>#</th>
@@ -164,10 +165,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-
                             </tbody>
                         </table>
-
                     </div>
                     <div class="tab-pane fade" id="tabService">
                         <h5 class="mb-3">Teknik Servis Detayları</h5>
@@ -275,44 +274,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Servis kaydı oluşturuldu</td>
-                                    <td>Ali Vural</td>
-                                    <td><span class="badge bg-primary">Devam Ediyor</span></td>
-                                    <td>2025-01-10 10:15</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Arıza tespit edildi: Ekran donuyor</td>
-                                    <td>Ali Vural</td>
-                                    <td><span class="badge bg-warning">Beklemede</span></td>
-                                    <td>2025-01-10 14:20</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Parça siparişi verildi</td>
-                                    <td>Ayşe Demir</td>
-                                    <td><span class="badge bg-success">Tamamlandı</span></td>
-                                    <td>2025-01-11 09:05</td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Servis tamamlandı</td>
-                                    <td>Ali Vural</td>
-                                    <td><span class="badge bg-success">Tamamlandı</span></td>
-                                    <td>2025-01-15 16:30</td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Müşteri bilgilendirildi</td>
-                                    <td>Ayşe Demir</td>
-                                    <td><span class="badge bg-primary">Devam Ediyor</span></td>
-                                    <td>2025-01-15 17:00</td>
-                                </tr>
                             </tbody>
                         </table>
-
                     </div>
                     <div class="tab-pane fade" id="tabNotes">
                         <h5 class="mb-3">Servis Notları</h5>
@@ -452,15 +415,20 @@
             $('#warrantyTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('technical-service.warranty-data', ['domain' => $domain, 'id' => $service->id]) }}",
+                ajax: "{{ route('technical-service.warranty-data', ['domain' => request()->route('domain'), 'id' => $service->id]) }}",
+                order: [
+                    [4, 'desc']
+                ],
                 columns: [{
                         data: 'DT_RowIndex',
-                        name: 'DT_RowIndex'
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'product_name',
-                        name: 'product_name'
-                    },
+                        name: 'product.name'
+                    }, 
                     {
                         data: 'imei',
                         name: 'imei'
@@ -475,15 +443,52 @@
                     },
                     {
                         data: 'warranty_status',
-                        name: 'warranty_status',
+                        name: 'warranty_status'
+                    }
+                ],
+            });
+            $('#activityTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('technical-service.activities-fetch', ['domain' => request()->route('domain'), 'id' => $service->id]) }}",
+                    error: function(xhr, error, thrown) {
+                        console.group("DataTable AJAX Error");
+                        console.error("Status:", xhr.status);
+                        console.error("Response:", xhr.responseText);
+                        console.groupEnd();
+                    }
+                },
+                order: [
+                    [4, 'desc']
+                ],
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'description',
+                        name: 'service_activities.description'
+                    },
+                    {
+                        data: 'user_name',
+                        name: 'users.name'
+                    },
+                    {
+                        data: 'status_name',
+                        name: 'service_statues.name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'service_activities.created_at'
                     }
                 ],
                 pageLength: 5,
                 lengthChange: false,
-                searching: false,
                 ordering: true,
+                searching: false,
                 info: true,
                 autoWidth: false,
                 language: {
@@ -494,24 +499,6 @@
                     info: "_TOTAL_ kayıttan _START_ - _END_ gösteriliyor",
                     infoEmpty: "0 kayıttan 0 - 0 gösteriliyor",
                     emptyTable: "Tabloda veri bulunmamaktadır"
-                }
-            });
-            $('#activityTable').DataTable({
-                "pageLength": 5,
-                "lengthChange": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "searching": false,
-                "language": {
-                    "search": "Ara:",
-                    "paginate": {
-                        "previous": "Önceki",
-                        "next": "Sonraki"
-                    },
-                    "info": "_TOTAL_ kayıttan _START_ - _END_ gösteriliyor",
-                    "infoEmpty": "0 kayıttan 0 - 0 gösteriliyor",
-                    "emptyTable": "Tabloda veri bulunmamaktadır"
                 }
             });
             $('#notesTable').DataTable({

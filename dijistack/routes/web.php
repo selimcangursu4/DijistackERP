@@ -75,7 +75,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', [TechnicalServiceController::class, 'store'])->name('store');
             Route::get('/fetch', [TechnicalServiceController::class, 'fetch'])->name('fetch');
             Route::get('/edit/{id}',[TechnicalServiceController::class,'edit'])->name('edit');
-            Route::get('/warranty-data',[TechnicalServiceController::class,'serviceProductWarrantyStatuses'])->name('warranty-data');
+            Route::get('/warranty-data/{id}/fetch',[TechnicalServiceController::class,'serviceProductWarrantyStatuses'])->name('warranty-data');
+            Route::get('/activities/{id}/fetch', [TechnicalServiceController::class, 'serviceActivitiesFetch'])->name('activities-fetch');
         });
         // Müşteri Yönetimi 
         Route::prefix('customers')->name('customers.')->group(function () {
