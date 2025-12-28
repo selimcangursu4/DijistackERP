@@ -341,8 +341,22 @@
                         </table>
                     </div>
                     <div class="tab-pane fade" id="tabRequests">
-                        <h5>Oluşturulan Talepler</h5>
-                        <div class="text-muted small">Parça, iade ve ek iş talepleri.</div>
+                        <h5 class="mb-3">Oluşturulan Talepler</h5>
+                        <table id="requestsTable" class="table table-bordered table-striped table-hover w-100">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Başlık</th>
+                                    <th>İlgili Birim</th>
+                                    <th>Talep Türü</th>
+                                    <th>Öncelik</th>
+                                    <th>Durum</th>
+                                    <th>Oluşturan</th>
+                                    <th>Oluşturma Tarihi</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -511,6 +525,44 @@
                 ],
                 order: [
                     [0, 'desc']
+                ]
+            });
+            $('#requestsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('technical-service.request-fetch', ['domain' => request()->route('domain'), 'id' => $service->id]) }}",
+                order: [
+                    [0, "desc"]
+                ],
+                columns: [{
+                        data: 'id'
+                    },
+                    {
+                        data: 'title'
+                    },
+                    {
+                        data:"module"
+                    },
+                    {
+                        data: 'request_type'
+                    },
+                    {
+                        data: 'priority'
+                    },
+                    {
+                        data: 'status'
+                    },
+                    {
+                        data: 'creator'
+                    },
+                    {
+                        data: 'created_at'
+                    },
+                    {
+                        data: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
                 ]
             });
 

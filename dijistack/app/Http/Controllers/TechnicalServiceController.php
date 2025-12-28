@@ -19,6 +19,8 @@ use App\Models\ServiceActivities;
 use App\Models\ServiceRecordNote;
 use App\Models\SmsLog;
 use App\Models\User;
+use App\Models\ServiceRequest;
+use App\Models\ServiceRequestStatus;
 use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -521,5 +523,31 @@ class TechnicalServiceController extends Controller
                 "error" => $e->getMessage(),
             ]);
         }
+    }
+    // Teknik Servis Detay Kayıt Hakkında Oluşturulan Talepler
+    public function singleServiceRequestFetch(Request $request, $domain, $id)
+    {
+      $companyId = auth()->user()->company_id;
+
+      $requests = ServiceRequest::where('company_id', $companyId)
+        ->where('service_id', $id)
+        ->with(['creator','statusRelation','priorityRelation','moduleRelation']);
+
+       return DataTables::of($requests)
+
+        ->editColumn('creator', fn($row) => $row->creator->name ?? '-')
+        ->editColumn('status', fn($row) => $row->statusRelation->name ?? '-')
+        ->editColumn('priority', fn($row) => $row->priorityRelation->name ?? '-')
+        ->editColumn('module', fn($row) => $row->moduleRelation->name ?? '-')
+        ->editColumn('created_at', fn($row) => $row->created_at->format('d.m.Y H:i'))
+        ->addColumn('action', function ($row) {
+            return '
+                <a href="#" 
+                   class="btn btn-sm btn-primary">Detay</a>
+            ';
+        })
+
+        ->rawColumns(['action'])
+        ->make(true);
     }
 }

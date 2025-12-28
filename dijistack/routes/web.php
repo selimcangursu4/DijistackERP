@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/activities/{id}/fetch', [TechnicalServiceController::class, 'serviceActivitiesFetch'])->name('activities-fetch');
             Route::get('/notes/{id}/fetch', [TechnicalServiceController::class, 'serviceNotesFetch'])->name('notes-fetch');
             Route::get('/sms-logs/{id}/fetch', [TechnicalServiceController::class, 'singleFetchSmsLog'])->name('sms-logs-fetch');
+            Route::get('/request/{id}/fetch', [TechnicalServiceController::class, 'singleServiceRequestFetch'])->name('request-fetch');
         });
         // Müşteri Yönetimi 
         Route::prefix('customers')->name('customers.')->group(function () {
